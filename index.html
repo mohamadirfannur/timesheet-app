@@ -32,7 +32,6 @@
     overflow-x: hidden;
   }
 
-  /* Background grid */
   body::before {
     content: '';
     position: fixed;
@@ -45,7 +44,6 @@
     pointer-events: none;
   }
 
-  /* Glow orbs */
   body::after {
     content: '';
     position: fixed;
@@ -63,7 +61,6 @@
     pointer-events: none;
   }
 
-  /* Header */
   header {
     padding: 28px 40px;
     display: flex;
@@ -88,11 +85,7 @@
     font-size: 16px;
   }
 
-  .logo-text {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
+  .logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
 
   .logo-sub {
     font-size: 11px;
@@ -115,17 +108,11 @@
     font-size: 12px;
     color: var(--text2);
   }
-
   .api-badge:hover { border-color: var(--accent); color: var(--text); }
 
-  .api-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--red);
-  }
+  .api-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
   .api-dot.connected { background: var(--green); }
 
-  /* Main layout */
   main {
     max-width: 1100px;
     margin: 0 auto;
@@ -134,7 +121,7 @@
     z-index: 10;
   }
 
-  /* API Key modal */
+  /* ── Modal base ── */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -159,7 +146,7 @@
   .modal h3 { font-size: 18px; margin-bottom: 8px; }
   .modal p { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
 
-  .modal input {
+  .modal input[type="text"] {
     width: 100%;
     padding: 12px 16px;
     background: var(--bg);
@@ -172,14 +159,177 @@
     outline: none;
     transition: border-color 0.2s;
   }
-  .modal input:focus { border-color: var(--accent); }
-
+  .modal input[type="text"]:focus { border-color: var(--accent); }
   .modal a { color: var(--accent); font-size: 12px; text-decoration: none; }
   .modal a:hover { text-decoration: underline; }
 
   .btn-row { display: flex; gap: 10px; margin-top: 8px; }
 
-  /* Buttons */
+  /* ── Settings modal ── */
+  .settings-modal {
+    width: 660px;
+    max-width: 95vw;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 28px 28px 24px;
+  }
+
+  .modal-hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .modal-hdr h3 { margin-bottom: 0; font-size: 16px; }
+
+  .btn-close {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .btn-close:hover { border-color: var(--text2); color: var(--text); }
+
+  .settings-section { margin-bottom: 28px; }
+
+  .settings-title {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .settings-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--bg);
+    margin-bottom: 5px;
+    border: 1px solid var(--border);
+    transition: opacity 0.2s;
+  }
+  .settings-item.inactive { opacity: 0.38; }
+
+  .item-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 86px;
+  }
+  .item-name { flex: 1; font-size: 12px; color: var(--text2); }
+
+  .toggle-btn {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    background: var(--border);
+  }
+  .toggle-btn.on { background: var(--green); }
+  .toggle-btn::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: white;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle-btn.on::after { transform: translateX(14px); }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .del-btn:hover { color: var(--red); background: rgba(255,107,107,0.1); }
+
+  .add-form {
+    display: none;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    margin-top: 8px;
+    border: 1px solid var(--border);
+  }
+  .add-form.show { display: flex; }
+
+  .add-form input, .add-form select {
+    padding: 8px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .add-form input:focus, .add-form select:focus { border-color: var(--accent); }
+  .add-form select option { background: var(--surface); }
+  .add-form .wide { flex: 1; min-width: 140px; }
+
+  .add-link {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    padding: 6px 0;
+    display: block;
+    margin-top: 4px;
+  }
+  .add-link:hover { text-decoration: underline; }
+
+  .settings-note {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  .style-textarea {
+    width: 100%;
+    min-height: 80px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    padding: 12px;
+    outline: none;
+    resize: vertical;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  .style-textarea:focus { border-color: var(--accent); }
+
+  /* ── Buttons ── */
   .btn {
     padding: 10px 20px;
     border-radius: 8px;
@@ -193,21 +343,13 @@
     align-items: center;
     gap: 8px;
   }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-  }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
   .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
-
-  .btn-ghost {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text2);
-  }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
   .btn-ghost:hover { border-color: var(--text2); color: var(--text); }
+  .btn-sm { padding: 7px 12px; font-size: 12px; }
 
-  /* Date + context row */
+  /* ── Top row ── */
   .top-row {
     display: flex;
     gap: 16px;
@@ -215,11 +357,7 @@
     align-items: flex-end;
   }
 
-  .field-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
 
   label {
     font-size: 11px;
@@ -229,7 +367,7 @@
     font-family: 'DM Mono', monospace;
   }
 
-  input[type="date"], input[type="text"] {
+  input[type="date"] {
     padding: 10px 14px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -241,9 +379,9 @@
     transition: border-color 0.2s;
     color-scheme: dark;
   }
-  input[type="date"]:focus, input[type="text"]:focus { border-color: var(--accent); }
+  input[type="date"]:focus { border-color: var(--accent); }
 
-  /* Input area */
+  /* ── Input card ── */
   .input-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -260,18 +398,8 @@
     align-items: center;
     margin-bottom: 14px;
   }
-
-  .input-title {
-    font-size: 13px;
-    color: var(--text2);
-    font-weight: 600;
-  }
-
-  .char-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
-  }
+  .input-title { font-size: 13px; color: var(--text2); font-weight: 600; }
+  .char-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
 
   textarea {
     width: 100%;
@@ -285,7 +413,6 @@
     line-height: 1.7;
     resize: none;
   }
-
   textarea::placeholder { color: var(--text3); }
 
   .input-footer {
@@ -297,7 +424,7 @@
     border-top: 1px solid var(--border);
   }
 
-  /* Voice button */
+  /* ── Voice ── */
   .voice-btn {
     width: 44px; height: 44px;
     border-radius: 50%;
@@ -309,31 +436,22 @@
     transition: all 0.2s;
     font-size: 18px;
   }
-
   .voice-btn:hover { border-color: var(--accent); color: var(--accent); }
-
   .voice-btn.recording {
     background: rgba(255,107,107,0.15);
     border-color: var(--red);
     color: var(--red);
     animation: pulse-ring 1.5s infinite;
   }
-
   @keyframes pulse-ring {
     0% { box-shadow: 0 0 0 0 rgba(255,107,107,0.4); }
     70% { box-shadow: 0 0 0 12px rgba(255,107,107,0); }
     100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
   }
-
-  .voice-status {
-    font-size: 12px;
-    color: var(--red);
-    font-family: 'DM Mono', monospace;
-    display: none;
-  }
+  .voice-status { font-size: 12px; color: var(--red); font-family: 'DM Mono', monospace; display: none; }
   .voice-status.show { display: block; }
 
-  /* Generate button */
+  /* ── Generate button ── */
   .generate-btn {
     padding: 12px 28px;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -349,16 +467,11 @@
     align-items: center;
     gap: 8px;
   }
-
   .generate-btn:hover { opacity: 0.88; transform: translateY(-1px); }
   .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-  /* Loading */
-  .loading-dots {
-    display: none;
-    gap: 4px;
-    align-items: center;
-  }
+  /* ── Loading ── */
+  .loading-dots { display: none; gap: 4px; align-items: center; }
   .loading-dots.show { display: flex; }
   .loading-dots span {
     width: 6px; height: 6px;
@@ -373,7 +486,7 @@
     30% { transform: translateY(-6px); }
   }
 
-  /* Result section */
+  /* ── Result ── */
   .result-section { display: none; }
   .result-section.show { display: block; }
 
@@ -383,14 +496,7 @@
     justify-content: space-between;
     margin-bottom: 16px;
   }
-
-  .result-title {
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .result-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 
   .entry-count {
     background: rgba(56,217,169,0.15);
@@ -420,18 +526,10 @@
   .copy-btn:hover { background: rgba(56,217,169,0.2); }
   .copy-btn.copied { color: var(--text2); border-color: var(--border); background: var(--surface); }
 
-  /* Table */
-  .table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-  }
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
 
   thead th {
     background: var(--surface2);
@@ -446,58 +544,36 @@
     border-bottom: 1px solid var(--border);
   }
 
-  tbody tr {
-    border-bottom: 1px solid rgba(37,42,58,0.6);
-    transition: background 0.1s;
-  }
+  tbody tr { border-bottom: 1px solid rgba(37,42,58,0.6); transition: background 0.1s; }
   tbody tr:hover { background: rgba(255,255,255,0.02); }
   tbody tr:last-child { border-bottom: none; }
+  tbody td { padding: 11px 14px; color: var(--text2); white-space: nowrap; }
 
-  tbody td {
-    padding: 11px 14px;
-    color: var(--text2);
-    white-space: nowrap;
-  }
+  .td-code { font-family: 'DM Mono', monospace; color: var(--accent); font-size: 11px; }
+  .td-time { font-family: 'DM Mono', monospace; color: var(--text); font-size: 11px; }
+  .td-mins { font-family: 'DM Mono', monospace; color: var(--yellow); }
+  .td-sub { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text2); font-size: 11px; }
+  .td-desc { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
 
-  .td-code {
-    font-family: 'DM Mono', monospace;
-    color: var(--accent);
-    font-size: 11px;
-  }
+  .total-row td { background: var(--surface2) !important; font-weight: 700; color: var(--text) !important; border-top: 1px solid var(--border) !important; }
+  .total-row .td-mins { color: var(--yellow) !important; }
 
-  .td-time {
-    font-family: 'DM Mono', monospace;
-    color: var(--text);
-    font-size: 11px;
-  }
-
-  .td-mins {
-    font-family: 'DM Mono', monospace;
-    color: var(--yellow);
-  }
-
-  .td-sub {
-    max-width: 300px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text2);
-    font-size: 11px;
-  }
-
-  .td-desc {
-    max-width: 250px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 11px;
-  }
-
-  /* History */
-  .history-section {
-    margin-top: 40px;
+  /* ── Validation warning ── */
+  .warn-box {
     display: none;
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: rgba(255,212,59,0.07);
+    border: 1px solid rgba(255,212,59,0.3);
+    border-radius: 10px;
+    color: var(--yellow);
+    font-size: 12px;
+    line-height: 1.8;
   }
+  .warn-box.show { display: block; }
+
+  /* ── History ── */
+  .history-section { margin-top: 40px; display: none; }
   .history-section.show { display: block; }
 
   .section-label {
@@ -511,18 +587,9 @@
     align-items: center;
     gap: 8px;
   }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
 
   .history-item {
     display: flex;
@@ -536,34 +603,14 @@
     transition: all 0.15s;
   }
   .history-item:hover { border-color: rgba(79,142,247,0.3); }
+  .history-date { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); }
+  .history-preview { font-size: 12px; color: var(--text2); flex: 1; margin: 0 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
 
-  .history-date {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--accent);
-  }
-
-  .history-preview {
-    font-size: 12px;
-    color: var(--text2);
-    flex: 1;
-    margin: 0 16px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .history-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
-  }
-
-  /* Toast */
+  /* ── Toast ── */
   .toast {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 30px; right: 30px;
     padding: 12px 20px;
     background: var(--surface);
     border: 1px solid var(--green);
@@ -581,7 +628,7 @@
   }
   .toast.show { transform: translateY(0); opacity: 1; }
 
-  /* Error */
+  /* ── Error ── */
   .error-box {
     display: none;
     padding: 14px 18px;
@@ -594,16 +641,7 @@
   }
   .error-box.show { display: block; }
 
-  /* Divider between total */
-  .total-row td {
-    background: var(--surface2) !important;
-    font-weight: 700;
-    color: var(--text) !important;
-    border-top: 1px solid var(--border) !important;
-  }
-  .total-row .td-mins { color: var(--yellow) !important; }
-
-  /* Scrollbar */
+  /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -612,13 +650,14 @@
   @media (max-width: 640px) {
     header, main { padding-left: 20px; padding-right: 20px; }
     .top-row { flex-direction: column; align-items: stretch; }
+    .settings-modal { padding: 20px 16px; }
   }
 </style>
 </head>
 <body>
 <div class="glow-orb"></div>
 
-<!-- API Modal -->
+<!-- API Key Modal -->
 <div class="modal-overlay" id="apiModal">
   <div class="modal">
     <h3>🔑 Gemini API Key</h3>
@@ -632,6 +671,63 @@
   </div>
 </div>
 
+<!-- Settings / Konteks AI Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal settings-modal">
+    <div class="modal-hdr">
+      <h3>⚙️ Konteks AI</h3>
+      <button class="btn-close" onclick="closeSettings()">✕ Tutup</button>
+    </div>
+
+    <!-- Section: Project Codes -->
+    <div class="settings-section">
+      <div class="settings-title">Project Codes</div>
+      <div id="projectList"></div>
+      <div id="projectAddForm" class="add-form">
+        <input type="text" id="newProjCode" placeholder="EX250099" style="width:100px">
+        <input type="text" id="newProjName" placeholder="Nama project..." class="wide">
+        <button class="btn btn-primary btn-sm" onclick="addProject()">Tambah</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleAddForm('projectAddForm')">Batal</button>
+      </div>
+      <button class="add-link" onclick="toggleAddForm('projectAddForm')">+ Tambah project baru</button>
+    </div>
+
+    <!-- Section: Jadwal Rutin -->
+    <div class="settings-section">
+      <div class="settings-title">Jadwal Rutin</div>
+      <div id="scheduleList"></div>
+      <div id="scheduleAddForm" class="add-form">
+        <select id="newSchedDay">
+          <option>Senin</option><option>Selasa</option><option>Rabu</option>
+          <option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option>
+        </select>
+        <input type="time" id="newSchedTime" value="09:00" style="width:90px">
+        <input type="text" id="newSchedDesc" placeholder="Deskripsi singkat" class="wide">
+        <input type="text" id="newSchedCode" placeholder="PR250001" style="width:100px">
+        <select id="newSchedSub">
+          <option value="">sub-</option>
+          <option>A</option><option>B</option><option>C</option><option>D</option>
+          <option>E</option><option>F</option><option>G</option><option>H</option><option>X</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="addSchedule()">Tambah</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleAddForm('scheduleAddForm')">Batal</button>
+      </div>
+      <button class="add-link" onclick="toggleAddForm('scheduleAddForm')">+ Tambah jadwal rutin</button>
+    </div>
+
+    <!-- Section: Gaya Penulisan -->
+    <div class="settings-section">
+      <div class="settings-title">Gaya Penulisan Description</div>
+      <p class="settings-note">Kasih contoh gaya penulisan field description biar AI ngikutin gaya lo. Misal: "Sprint PLTS - analisis suitability desa" atau "Koordinasi internal G-ROCKS terkait update phase 1"</p>
+      <textarea class="style-textarea" id="writingStyleInput" placeholder="Tulis beberapa contoh description yang lo mau AI tiru...&#10;Contoh:&#10;- Sprint PLTS - analisis data suitability&#10;- Koordinasi internal G-ROCKS phase 1&#10;- Daily prepare & planning harian"></textarea>
+      <div style="margin-top:10px">
+        <button class="btn btn-primary btn-sm" onclick="saveWritingStyle()">💾 Simpan gaya</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <header>
   <div class="logo">
     <div class="logo-icon">⏱</div>
@@ -640,15 +736,17 @@
       <div class="logo-sub">Mohamad Irfan Nurmawan</div>
     </div>
   </div>
-  <div class="api-badge" onclick="openModal()">
-    <div class="api-dot" id="apiDot"></div>
-    <span id="apiStatus">Set API Key</span>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div class="api-badge" onclick="openSettings()">⚙️ Konteks AI</div>
+    <div class="api-badge" onclick="openModal()">
+      <div class="api-dot" id="apiDot"></div>
+      <span id="apiStatus">Set API Key</span>
+    </div>
   </div>
 </header>
 
 <main>
 
-  <!-- Top row: date -->
   <div class="top-row">
     <div class="field-group">
       <label>Tanggal</label>
@@ -657,10 +755,8 @@
     <div style="flex:1"></div>
   </div>
 
-  <!-- Error box -->
   <div class="error-box" id="errorBox"></div>
 
-  <!-- Input card -->
   <div class="input-card">
     <div class="input-header">
       <span class="input-title">Ceritain hari lo ngapain aja</span>
@@ -717,6 +813,7 @@
         <tbody id="resultBody"></tbody>
       </table>
     </div>
+    <div class="warn-box" id="warnBox"></div>
   </div>
 
   <!-- History -->
@@ -727,13 +824,11 @@
 
 </main>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
 const NAME = 'Mohamad Irfan Nurmawan';
 
-// Sub activity mapping
 const SUB_MAP = {
   F: "F - Project's Ground Work (GIS Analysis, Data Preparation, Minor Design Changes, etc)",
   D: "D - Coordination with relevant stakeholders (internal company) related to product development needs/financial/legal/manpower needs",
@@ -746,21 +841,56 @@ const SUB_MAP = {
   X: "X - Project/activity financial report"
 };
 
-// Project code context
-const PROJECT_CONTEXT = `
-Daftar Activity Code yang tersedia:
-- EX250029: Multicriteria Analysis for determining site location for PLTS (Pertamina, analisis suitability desa, MCDA)
-- EX250005: Geotech / G-ROCKS (geotechnical monitoring, logging, Phase 1 & Phase 2)
-- EX250015: Geodashboard 2.0 SURGE (dashboard WebGIS untuk Surge)
-- PR250001: Daily Meeting and Preparation (weekly prepare, weekly meeting tim Product, rapat internal harian)
-- PR250002: Weekly Meeting
-- PR250003: Learning and Development
-- PR250004: Technology or Design Research
-- AC250005: Corporate events (acara kantor, MC, townhall, anniversary)
-- AC250009: Non productive
-- AC250001: P&C Friday's Activity
-- OP250055: Piloting Project for Pelindo External Incubation Program (Excube)
+// ── DEFAULT DATA ────────────────────────────────────────────────────────────
 
+const DEFAULT_PROJECTS = [
+  { code: 'EX250029', name: 'PLTS Pertamina (MCDA site suitability)', active: true },
+  { code: 'EX250005', name: 'G-ROCKS Geotech (Phase 1 & 2)', active: true },
+  { code: 'EX250015', name: 'Geodashboard 2.0 SURGE', active: true },
+  { code: 'PR250001', name: 'Daily Meeting & Preparation', active: true },
+  { code: 'PR250002', name: 'Weekly Meeting', active: true },
+  { code: 'PR250003', name: 'Learning & Development', active: true },
+  { code: 'PR250004', name: 'Tech/Design Research', active: true },
+  { code: 'AC250005', name: 'Corporate Events', active: true },
+  { code: 'AC250009', name: 'Non-productive', active: true },
+  { code: 'AC250001', name: "P&C Friday's Activity", active: true },
+  { code: 'OP250055', name: 'Pelindo Excube', active: true },
+];
+
+const DEFAULT_SCHEDULES = [
+  { day: 'Senin',  time: '09:00', desc: 'Weekly prepare',        code: 'PR250001', sub: 'D', active: true },
+  { day: 'Selasa', time: '10:00', desc: 'Sprint G-ROCKS',         code: 'EX250005', sub: 'C', active: true },
+  { day: 'Kamis',  time: '13:00', desc: 'Weekly G-ROCKS Phase 1', code: 'EX250005', sub: 'D', active: true },
+  { day: 'Jumat',  time: '10:00', desc: 'Weekly tim Product',     code: 'PR250001', sub: 'D', active: true },
+  { day: 'Jumat',  time: '11:00', desc: 'Jumatan (skip 1 jam)',   code: '',         sub: '',  active: true },
+  { day: 'Jumat',  time: '13:30', desc: 'Weekly G-ROCKS Phase 2', code: 'EX250005', sub: 'D', active: true },
+];
+
+// ── DATA LAYER ──────────────────────────────────────────────────────────────
+
+function getProjects() {
+  const saved = localStorage.getItem('ts_projects');
+  return saved ? JSON.parse(saved) : DEFAULT_PROJECTS;
+}
+function saveProjects(data) { localStorage.setItem('ts_projects', JSON.stringify(data)); }
+
+function getSchedules() {
+  const saved = localStorage.getItem('ts_schedules');
+  return saved ? JSON.parse(saved) : DEFAULT_SCHEDULES;
+}
+function saveSchedules(data) { localStorage.setItem('ts_schedules', JSON.stringify(data)); }
+
+function getWritingStyle() { return localStorage.getItem('ts_style') || ''; }
+
+function buildProjectContext() {
+  const projects  = getProjects().filter(p => p.active);
+  const schedules = getSchedules().filter(s => s.active);
+  const style     = getWritingStyle();
+
+  let ctx = `Daftar Activity Code yang tersedia:\n`;
+  projects.forEach(p => { ctx += `- ${p.code}: ${p.name}\n`; });
+
+  ctx += `
 Sub Activity codes:
 A = User research
 B = PRD
@@ -773,28 +903,39 @@ H = Quality Assurance, Bug Search, Testing
 X = Financial report
 
 Catatan penting:
-- Weekly prepare senin pagi = PR250001 sub D
-- Weekly tim Product (Jumat 10:00) = PR250001 sub D
-- Weekly G-ROCKS Phase 1 (Kamis 13:00) = EX250005 sub D
-- Weekly G-ROCKS Phase 2 (Jumat 13:30) = EX250005 sub D
-- Sprint G-ROCKS (Selasa 10:00) = EX250005 sub C
 - PLTS = EX250029
 - Surge/Geodashboard = EX250015
 - Lembur = tetap pakai kode project yang dikerjakan
 - Jika ke kantor klien (Surge) = EX250015 sub E
 - Acara kantor, MC = AC250005
+- Activity Description dikosongkan (diisi otomatis di spreadsheet kantor)
 `;
 
-// API key
+  if (schedules.length > 0) {
+    ctx += `\nJadwal rutin yang perlu diketahui:\n`;
+    schedules.forEach(s => {
+      if (s.code) ctx += `- ${s.day} ${s.time}: ${s.desc} → ${s.code}/sub ${s.sub}\n`;
+      else        ctx += `- ${s.day} ${s.time}: ${s.desc}\n`;
+    });
+  }
+
+  if (style) {
+    ctx += `\nGaya penulisan field "description" yang harus diikuti (tiru pola & tone-nya):\n${style}\n`;
+  }
+
+  return ctx;
+}
+
+// ── API KEY ─────────────────────────────────────────────────────────────────
+
 let apiKey = localStorage.getItem('gemini_api_key') || '';
 updateApiStatus();
 
-// Date default to today
 const today = new Date();
 document.getElementById('dateInput').value = today.toISOString().split('T')[0];
 
 function updateApiStatus() {
-  const dot = document.getElementById('apiDot');
+  const dot    = document.getElementById('apiDot');
   const status = document.getElementById('apiStatus');
   if (apiKey) {
     dot.className = 'api-dot connected';
@@ -802,7 +943,6 @@ function updateApiStatus() {
   } else {
     dot.className = 'api-dot';
     status.textContent = 'Set API Key';
-    // Auto open modal if no key
     setTimeout(() => openModal(), 500);
   }
 }
@@ -811,10 +951,7 @@ function openModal() {
   document.getElementById('apiKeyInput').value = apiKey;
   document.getElementById('apiModal').classList.add('show');
 }
-
-function closeModal() {
-  document.getElementById('apiModal').classList.remove('show');
-}
+function closeModal() { document.getElementById('apiModal').classList.remove('show'); }
 
 function saveApiKey() {
   const val = document.getElementById('apiKeyInput').value.trim();
@@ -831,20 +968,17 @@ function updateCharCount() {
   document.getElementById('charCount').textContent = `${len} karakter`;
 }
 
-// Voice input
+// ── VOICE INPUT ─────────────────────────────────────────────────────────────
+
 let recognition = null;
-let isRecording = false;
+let isRecording  = false;
 
 function toggleVoice() {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     showError('Browser lo tidak support voice input. Coba pakai Chrome.');
     return;
   }
-
-  if (isRecording) {
-    recognition.stop();
-    return;
-  }
+  if (isRecording) { recognition.stop(); return; }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
@@ -854,7 +988,6 @@ function toggleVoice() {
 
   const textarea = document.getElementById('activityInput');
   const baseText = textarea.value;
-  let interim = '';
 
   recognition.onstart = () => {
     isRecording = true;
@@ -864,8 +997,7 @@ function toggleVoice() {
   };
 
   recognition.onresult = (e) => {
-    interim = '';
-    let final = '';
+    let interim = '', final = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       if (e.results[i].isFinal) final += e.results[i][0].transcript;
       else interim += e.results[i][0].transcript;
@@ -891,18 +1023,19 @@ function toggleVoice() {
   recognition.start();
 }
 
-// Generate
+// ── GENERATE ────────────────────────────────────────────────────────────────
+
 async function generate() {
-  const input = document.getElementById('activityInput').value.trim();
+  const input   = document.getElementById('activityInput').value.trim();
   const dateVal = document.getElementById('dateInput').value;
 
   hideError();
 
-  if (!apiKey) { openModal(); return; }
-  if (!input) { showError('Isi dulu cerita aktivitas lo ya!'); return; }
-  if (!dateVal) { showError('Pilih tanggalnya dulu.'); return; }
+  if (!apiKey)   { openModal(); return; }
+  if (!input)    { showError('Isi dulu cerita aktivitas lo ya!'); return; }
+  if (!dateVal)  { showError('Pilih tanggalnya dulu.'); return; }
 
-  const dateObj = new Date(dateVal);
+  const dateObj       = new Date(dateVal);
   const dateFormatted = dateObj.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'2-digit' }).replace(/ /g, '-');
 
   setLoading(true);
@@ -910,7 +1043,7 @@ async function generate() {
   const prompt = `
 Kamu adalah sistem yang mengkonversi deskripsi aktivitas kerja harian menjadi format timesheet yang terstruktur.
 
-${PROJECT_CONTEXT}
+${buildProjectContext()}
 
 Format output yang dibutuhkan adalah JSON array, setiap elemen berisi:
 - start_hour: "HH:MM" (format 24 jam)
@@ -952,23 +1085,15 @@ Kembalikan HANYA JSON array valid, tanpa markdown, tanpa penjelasan. Contoh form
       throw new Error(err.error?.message || `HTTP ${res.status}`);
     }
 
-    const data = await res.json();
-    let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    // Clean up markdown
-    rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const data    = await res.json();
+    let rawText   = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    rawText       = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
     let entries;
-    try {
-      entries = JSON.parse(rawText);
-    } catch(e) {
-      throw new Error('Format response AI tidak valid. Coba lagi.');
-    }
+    try { entries = JSON.parse(rawText); }
+    catch(e) { throw new Error('Format response AI tidak valid. Coba lagi.'); }
 
-    // Save to history
     saveHistory(dateVal, input, entries);
-
-    // Render
     renderTable(entries, dateFormatted);
     setLoading(false);
     showToast('✅ Timesheet berhasil digenerate!');
@@ -979,6 +1104,8 @@ Kembalikan HANYA JSON array valid, tanpa markdown, tanpa penjelasan. Contoh form
   }
 }
 
+// ── RENDER TABLE + VALIDASI ──────────────────────────────────────────────────
+
 function renderTable(entries, dateFormatted) {
   const tbody = document.getElementById('resultBody');
   tbody.innerHTML = '';
@@ -986,9 +1113,9 @@ function renderTable(entries, dateFormatted) {
   let totalMins = 0;
 
   entries.forEach(entry => {
-    const sub = entry.sub_activity?.toUpperCase();
+    const sub     = entry.sub_activity?.toUpperCase();
     const subFull = SUB_MAP[sub] || sub || '';
-    const mins = entry.total_minutes || 0;
+    const mins    = entry.total_minutes || 0;
     totalMins += mins;
 
     const tr = document.createElement('tr');
@@ -1007,7 +1134,6 @@ function renderTable(entries, dateFormatted) {
     tbody.appendChild(tr);
   });
 
-  // Total row
   const totalTr = document.createElement('tr');
   totalTr.className = 'total-row';
   totalTr.innerHTML = `
@@ -1019,22 +1145,48 @@ function renderTable(entries, dateFormatted) {
 
   document.getElementById('entryCount').textContent = `${entries.length} entries · ${Math.floor(totalMins/60)}j ${totalMins%60}m`;
   document.getElementById('resultSection').classList.add('show');
-
-  // Scroll to result
   document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Validasi
+  showValidation(entries, totalMins);
 }
 
-function copyTable() {
-  const tbody = document.getElementById('resultBody');
-  const rows = tbody.querySelectorAll('tr:not(.total-row)');
+function showValidation(entries, totalMins) {
+  const warnings = [];
 
+  // 1. Cek total menit
+  if (totalMins < 420) {
+    warnings.push(`⏱ Total ${totalMins} menit — kurang ${420 - totalMins} menit dari 7 jam kerja (420 menit)`);
+  } else if (totalMins > 420) {
+    warnings.push(`⏱ Total ${totalMins} menit — lebih ${totalMins - 420} menit dari 7 jam. Ada lembur?`);
+  }
+
+  // 2. Cek gap antar entry
+  const sorted = [...entries].sort((a, b) => a.start_hour.localeCompare(b.start_hour));
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const end       = sorted[i].end_hour;
+    const nextStart = sorted[i + 1].start_hour;
+    if (end === nextStart) continue;
+    if (end === '12:00' && nextStart === '13:00') continue; // istirahat normal
+    warnings.push(`🕐 Ada celah waktu kosong: ${end} → ${nextStart}`);
+  }
+
+  const box = document.getElementById('warnBox');
+  if (warnings.length > 0) {
+    box.innerHTML = warnings.map(w => `<div>${w}</div>`).join('');
+    box.classList.add('show');
+  } else {
+    box.classList.remove('show');
+  }
+}
+
+// ── COPY ─────────────────────────────────────────────────────────────────────
+
+function copyTable() {
+  const rows = document.getElementById('resultBody').querySelectorAll('tr:not(.total-row)');
   let tsv = '';
   rows.forEach(row => {
-    const cells = row.querySelectorAll('td');
-    const vals = Array.from(cells).map(td => {
-      const full = td.getAttribute('title') || td.textContent.trim();
-      return full;
-    });
+    const vals = Array.from(row.querySelectorAll('td')).map(td => td.getAttribute('title') || td.textContent.trim());
     tsv += vals.join('\t') + '\n';
   });
 
@@ -1043,12 +1195,8 @@ function copyTable() {
     btn.textContent = '✅ Copied!';
     btn.classList.add('copied');
     showToast('📋 Data berhasil dicopy! Tinggal Ctrl+V di Excel.');
-    setTimeout(() => {
-      btn.innerHTML = '📋 Copy untuk Excel';
-      btn.classList.remove('copied');
-    }, 3000);
+    setTimeout(() => { btn.innerHTML = '📋 Copy untuk Excel'; btn.classList.remove('copied'); }, 3000);
   }).catch(() => {
-    // Fallback
     const ta = document.createElement('textarea');
     ta.value = tsv;
     document.body.appendChild(ta);
@@ -1059,11 +1207,11 @@ function copyTable() {
   });
 }
 
-// History
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+
 function saveHistory(dateVal, input, entries) {
   const history = JSON.parse(localStorage.getItem('ts_history') || '[]');
   history.unshift({ date: dateVal, input: input.substring(0, 100), entries, saved: Date.now() });
-  // Keep max 20
   localStorage.setItem('ts_history', JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
@@ -1073,14 +1221,14 @@ function renderHistory() {
   if (!history.length) return;
 
   const section = document.getElementById('historySection');
-  const list = document.getElementById('historyList');
+  const list    = document.getElementById('historyList');
   section.classList.add('show');
   list.innerHTML = '';
 
-  history.slice(0, 5).forEach((item, i) => {
-    const d = new Date(item.date);
+  history.slice(0, 5).forEach(item => {
+    const d     = new Date(item.date);
     const label = d.toLocaleDateString('id-ID', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
-    const div = document.createElement('div');
+    const div   = document.createElement('div');
     div.className = 'history-item';
     div.innerHTML = `
       <span class="history-date">${label}</span>
@@ -1088,22 +1236,21 @@ function renderHistory() {
       <span class="history-count">${item.entries?.length || 0} entries</span>
     `;
     div.onclick = () => {
-      const d2 = new Date(item.date);
       document.getElementById('dateInput').value = item.date;
       document.getElementById('activityInput').value = item.input;
-      const dateFormatted = d2.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'2-digit' }).replace(/ /g, '-');
+      const dateFormatted = d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'2-digit' }).replace(/ /g, '-');
       renderTable(item.entries, dateFormatted);
     };
     list.appendChild(div);
   });
 }
 
-// Utils
+// ── UTILS ────────────────────────────────────────────────────────────────────
+
 function setLoading(on) {
   document.getElementById('generateBtn').disabled = on;
   document.getElementById('loadingDots').classList.toggle('show', on);
   document.getElementById('generateBtn').style.display = on ? 'none' : 'flex';
-  if (!on) document.getElementById('generateBtn').style.display = 'flex';
 }
 
 function showError(msg) {
@@ -1111,10 +1258,7 @@ function showError(msg) {
   box.textContent = '⚠️ ' + msg;
   box.classList.add('show');
 }
-
-function hideError() {
-  document.getElementById('errorBox').classList.remove('show');
-}
+function hideError() { document.getElementById('errorBox').classList.remove('show'); }
 
 let toastTimer;
 function showToast(msg) {
@@ -1125,7 +1269,134 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// Init
+// ── SETTINGS MODAL ───────────────────────────────────────────────────────────
+
+function openSettings() {
+  renderProjectList();
+  renderScheduleList();
+  document.getElementById('writingStyleInput').value = getWritingStyle();
+  document.getElementById('settingsModal').classList.add('show');
+}
+function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
+
+function toggleAddForm(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+}
+
+// Projects
+
+function renderProjectList() {
+  const projects = getProjects();
+  const list     = document.getElementById('projectList');
+  list.innerHTML = '';
+
+  projects.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'settings-item' + (p.active ? '' : ' inactive');
+    div.innerHTML = `
+      <span class="item-code">${p.code}</span>
+      <span class="item-name">${p.name}</span>
+      <button class="toggle-btn ${p.active ? 'on' : ''}" title="${p.active ? 'Nonaktifkan' : 'Aktifkan'}" onclick="toggleProject(${i})"></button>
+      <button class="del-btn" title="Hapus" onclick="deleteProject(${i})">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleProject(i) {
+  const projects = getProjects();
+  projects[i].active = !projects[i].active;
+  saveProjects(projects);
+  renderProjectList();
+}
+
+function deleteProject(i) {
+  const projects = getProjects();
+  projects.splice(i, 1);
+  saveProjects(projects);
+  renderProjectList();
+}
+
+function addProject() {
+  const code = document.getElementById('newProjCode').value.trim().toUpperCase();
+  const name = document.getElementById('newProjName').value.trim();
+  if (!code || !name) { showToast('⚠️ Isi code dan nama project dulu.'); return; }
+
+  const projects = getProjects();
+  projects.push({ code, name, active: true });
+  saveProjects(projects);
+  document.getElementById('newProjCode').value = '';
+  document.getElementById('newProjName').value = '';
+  toggleAddForm('projectAddForm');
+  renderProjectList();
+  showToast(`✅ Project ${code} ditambahkan.`);
+}
+
+// Schedules
+
+function renderScheduleList() {
+  const schedules = getSchedules();
+  const list      = document.getElementById('scheduleList');
+  list.innerHTML  = '';
+
+  schedules.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'settings-item' + (s.active ? '' : ' inactive');
+    const detail = s.code ? `${s.code}/${s.sub}` : '(skip)';
+    div.innerHTML = `
+      <span class="item-code" style="min-width:52px">${s.day}</span>
+      <span class="item-code" style="min-width:44px">${s.time}</span>
+      <span class="item-name">${s.desc} <span style="color:var(--text3);font-size:10px">${detail}</span></span>
+      <button class="toggle-btn ${s.active ? 'on' : ''}" title="${s.active ? 'Nonaktifkan' : 'Aktifkan'}" onclick="toggleSchedule(${i})"></button>
+      <button class="del-btn" title="Hapus" onclick="deleteSchedule(${i})">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleSchedule(i) {
+  const schedules  = getSchedules();
+  schedules[i].active = !schedules[i].active;
+  saveSchedules(schedules);
+  renderScheduleList();
+}
+
+function deleteSchedule(i) {
+  const schedules = getSchedules();
+  schedules.splice(i, 1);
+  saveSchedules(schedules);
+  renderScheduleList();
+}
+
+function addSchedule() {
+  const day  = document.getElementById('newSchedDay').value;
+  const time = document.getElementById('newSchedTime').value;
+  const desc = document.getElementById('newSchedDesc').value.trim();
+  const code = document.getElementById('newSchedCode').value.trim().toUpperCase();
+  const sub  = document.getElementById('newSchedSub').value;
+  if (!desc) { showToast('⚠️ Isi deskripsi jadwal dulu.'); return; }
+
+  const schedules = getSchedules();
+  schedules.push({ day, time, desc, code, sub, active: true });
+  saveSchedules(schedules);
+  document.getElementById('newSchedDesc').value = '';
+  document.getElementById('newSchedCode').value = '';
+  toggleAddForm('scheduleAddForm');
+  renderScheduleList();
+  showToast(`✅ Jadwal ${day} ${time} ditambahkan.`);
+}
+
+// Writing style
+
+function saveWritingStyle() {
+  const val = document.getElementById('writingStyleInput').value.trim();
+  localStorage.setItem('ts_style', val);
+  showToast('✅ Gaya penulisan tersimpan!');
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+
 renderHistory();
 </script>
 </body>
