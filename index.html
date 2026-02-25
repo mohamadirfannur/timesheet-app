@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timesheet AI — Ipang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1c2030;
+    --border: #252a3a;
+    --accent: #4f8ef7;
+    --accent2: #7c6af7;
+    --green: #38d9a9;
+    --yellow: #ffd43b;
+    --red: #ff6b6b;
+    --text: #e8eaf0;
+    --text2: #8890a8;
+    --text3: #4a5068;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  /* Glow orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .glow-orb {
+    position: fixed;
+    bottom: -200px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(124,106,247,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Header */
+  header {
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .api-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .api-badge:hover { border-color: var(--accent); color: var(--text); }
+
+  .api-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--red);
+  }
+  .api-dot.connected { background: var(--green); }
+
+  /* Main layout */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* API Key modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 480px;
+    max-width: 90vw;
+  }
+
+  .modal h3 { font-size: 18px; margin-bottom: 8px; }
+  .modal p { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+
+  .modal input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal input:focus { border-color: var(--accent); }
+
+  .modal a { color: var(--accent); font-size: 12px; text-decoration: none; }
+  .modal a:hover { text-decoration: underline; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-ghost:hover { border-color: var(--text2); color: var(--text); }
+
+  /* Date + context row */
+  .top-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    align-items: flex-end;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  input[type="date"], input[type="text"] {
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+  }
+  input[type="date"]:focus, input[type="text"]:focus { border-color: var(--accent); }
+
+  /* Input area */
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: border-color 0.3s;
+  }
+  .input-card:focus-within { border-color: rgba(79,142,247,0.4); }
+
+  .input-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .input-title {
+    font-size: 13px;
+    color: var(--text2);
+    font-weight: 600;
+  }
+
+  .char-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    resize: none;
+  }
+
+  textarea::placeholder { color: var(--text3); }
+
+  .input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Voice button */
+  .voice-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 18px;
+  }
+
+  .voice-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .voice-btn.recording {
+    background: rgba(255,107,107,0.15);
+    border-color: var(--red);
+    color: var(--red);
+    animation: pulse-ring 1.5s infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(255,107,107,0.4); }
+    70% { box-shadow: 0 0 0 12px rgba(255,107,107,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
+  }
+
+  .voice-status {
+    font-size: 12px;
+    color: var(--red);
+    font-family: 'DM Mono', monospace;
+    display: none;
+  }
+  .voice-status.show { display: block; }
+
+  /* Generate button */
+  .generate-btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .generate-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Loading */
+  .loading-dots {
+    display: none;
+    gap: 4px;
+    align-items: center;
+  }
+  .loading-dots.show { display: flex; }
+  .loading-dots span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 1.2s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* Result section */
+  .result-section { display: none; }
+  .result-section.show { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .result-title {
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .entry-count {
+    background: rgba(56,217,169,0.15);
+    color: var(--green);
+    border: 1px solid rgba(56,217,169,0.3);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(56,217,169,0.1);
+    border: 1px solid rgba(56,217,169,0.3);
+    border-radius: 8px;
+    color: var(--green);
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { background: rgba(56,217,169,0.2); }
+  .copy-btn.copied { color: var(--text2); border-color: var(--border); background: var(--surface); }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  thead th {
+    background: var(--surface2);
+    padding: 12px 14px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(37,42,58,0.6);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody td {
+    padding: 11px 14px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  .td-code {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  .td-time {
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    font-size: 11px;
+  }
+
+  .td-mins {
+    font-family: 'DM Mono', monospace;
+    color: var(--yellow);
+  }
+
+  .td-sub {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text2);
+    font-size: 11px;
+  }
+
+  .td-desc {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+  }
+
+  /* History */
+  .history-section {
+    margin-top: 40px;
+    display: none;
+  }
+  .history-section.show { display: block; }
+
+  .section-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .history-item:hover { border-color: rgba(79,142,247,0.3); }
+
+  .history-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .history-preview {
+    font-size: 12px;
+    color: var(--text2);
+    flex: 1;
+    margin: 0 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .history-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Error */
+  .error-box {
+    display: none;
+    padding: 14px 18px;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 10px;
+    color: var(--red);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .error-box.show { display: block; }
+
+  /* Divider between total */
+  .total-row td {
+    background: var(--surface2) !important;
+    font-weight: 700;
+    color: var(--text) !important;
+    border-top: 1px solid var(--border) !important;
+  }
+  .total-row .td-mins { color: var(--yellow) !important; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  @media (max-width: 640px) {
+    header, main { padding-left: 20px; padding-right: 20px; }
+    .top-row { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+<div class="glow-orb"></div>
+
+<!-- API Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h3>🔑 Gemini API Key</h3>
+    <p>Daftarin API key Gemini lo di sini. Tersimpan di browser lo sendiri, gak ke mana-mana.<br><br>
+    Belum punya? → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> (gratis, pake akun Google)</p>
+    <input type="text" id="apiKeyInput" placeholder="AIza..." autocomplete="off">
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveApiKey()">💾 Simpan</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⏱</div>
+    <div>
+      <div class="logo-text">Timesheet AI</div>
+      <div class="logo-sub">Mohamad Irfan Nurmawan</div>
+    </div>
+  </div>
+  <div class="api-badge" onclick="openModal()">
+    <div class="api-dot" id="apiDot"></div>
+    <span id="apiStatus">Set API Key</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Top row: date -->
+  <div class="top-row">
+    <div class="field-group">
+      <label>Tanggal</label>
+      <input type="date" id="dateInput">
+    </div>
+    <div style="flex:1"></div>
+  </div>
+
+  <!-- Error box -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Input card -->
+  <div class="input-card">
+    <div class="input-header">
+      <span class="input-title">Ceritain hari lo ngapain aja</span>
+      <span class="char-count" id="charCount">0 karakter</span>
+    </div>
+    <textarea
+      id="activityInput"
+      placeholder="Contoh: Pagi jam 9 ada weekly prepare sejam, terus ngerjain PLTS sampe jam 12. Abis ishoma jam 1 lanjut PLTS lagi sampe jam 3, terus jam 3 ngerjain G-ROCKS sampe jam 5..."
+      oninput="updateCharCount()"
+    ></textarea>
+    <div class="input-footer">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Voice input">🎙</button>
+        <span class="voice-status" id="voiceStatus">● REC</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="loading-dots" id="loadingDots">
+          <span></span><span></span><span></span>
+        </div>
+        <button class="generate-btn" id="generateBtn" onclick="generate()">
+          ✨ Generate Timesheet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-section" id="resultSection">
+    <div class="result-header">
+      <div class="result-title">
+        Hasil
+        <span class="entry-count" id="entryCount">0 entries</span>
+      </div>
+      <button class="copy-btn" id="copyBtn" onclick="copyTable()">
+        📋 Copy untuk Excel
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Mins</th>
+            <th>Act. Code</th>
+            <th>Act. Desc</th>
+            <th>Sub Activity</th>
+            <th>Description</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="history-section" id="historySection">
+    <div class="section-label">Riwayat</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const NAME = 'Mohamad Irfan Nurmawan';
+
+// Sub activity mapping
+const SUB_MAP = {
+  F: "F - Project's Ground Work (GIS Analysis, Data Preparation, Minor Design Changes, etc)",
+  D: "D - Coordination with relevant stakeholders (internal company) related to product development needs/financial/legal/manpower needs",
+  E: "E - Coordination with relevant stakeholders (external company; outsource) related to product development needs/financial/legal/manpower needs",
+  C: "C - Project sprint",
+  G: "G - Project's Documentation",
+  H: "H - Quality Assurance, Bug Search, and Testing",
+  A: "A - User research",
+  B: "B - PRD",
+  X: "X - Project/activity financial report"
+};
+
+// Project code context
+const PROJECT_CONTEXT = `
+Daftar Activity Code yang tersedia:
+- EX250029: Multicriteria Analysis for determining site location for PLTS (Pertamina, analisis suitability desa, MCDA)
+- EX250005: Geotech / G-ROCKS (geotechnical monitoring, logging, Phase 1 & Phase 2)
+- EX250015: Geodashboard 2.0 SURGE (dashboard WebGIS untuk Surge)
+- PR250001: Daily Meeting and Preparation (weekly prepare, weekly meeting tim Product, rapat internal harian)
+- PR250002: Weekly Meeting
+- PR250003: Learning and Development
+- PR250004: Technology or Design Research
+- AC250005: Corporate events (acara kantor, MC, townhall, anniversary)
+- AC250009: Non productive
+- AC250001: P&C Friday's Activity
+- OP250055: Piloting Project for Pelindo External Incubation Program (Excube)
+
+Sub Activity codes:
+A = User research
+B = PRD
+C = Project sprint
+D = Koordinasi internal (dalam perusahaan)
+E = Koordinasi eksternal (klien, outsource)
+F = Ground work (GIS analysis, data preparation, pengerjaan teknis project)
+G = Documentation
+H = Quality Assurance, Bug Search, Testing
+X = Financial report
+
+Catatan penting:
+- Weekly prepare senin pagi = PR250001 sub D
+- Weekly tim Product (Jumat 10:00) = PR250001 sub D
+- Weekly G-ROCKS Phase 1 (Kamis 13:00) = EX250005 sub D
+- Weekly G-ROCKS Phase 2 (Jumat 13:30) = EX250005 sub D
+- Sprint G-ROCKS (Selasa 10:00) = EX250005 sub C
+- PLTS = EX250029
+- Surge/Geodashboard = EX250015
+- Lembur = tetap pakai kode project yang dikerjakan
+- Jika ke kantor klien (Surge) = EX250015 sub E
+- Acara kantor, MC = AC250005
+`;
+
+// API key
+let apiKey = localStorage.getItem('gemini_api_key') || '';
+updateApiStatus();
+
+// Date default to today
+const today = new Date();
+document.getElementById('dateInput').value = today.toISOString().split('T')[0];
+
+function updateApiStatus() {
+  const dot = document.getElementById('apiDot');
+  const status = document.getElementById('apiStatus');
+  if (apiKey) {
+    dot.className = 'api-dot connected';
+    status.textContent = 'API Connected';
+  } else {
+    dot.className = 'api-dot';
+    status.textContent = 'Set API Key';
+    // Auto open modal if no key
+    setTimeout(() => openModal(), 500);
+  }
+}
+
+function openModal() {
+  document.getElementById('apiKeyInput').value = apiKey;
+  document.getElementById('apiModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('apiModal').classList.remove('show');
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) return;
+  apiKey = val;
+  localStorage.setItem('gemini_api_key', val);
+  updateApiStatus();
+  closeModal();
+  showToast('✅ API key tersimpan!');
+}
+
+function updateCharCount() {
+  const len = document.getElementById('activityInput').value.length;
+  document.getElementById('charCount').textContent = `${len} karakter`;
+}
+
+// Voice input
+let recognition = null;
+let isRecording = false;
+
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showError('Browser lo tidak support voice input. Coba pakai Chrome.');
+    return;
+  }
+
+  if (isRecording) {
+    recognition.stop();
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'id-ID';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  const textarea = document.getElementById('activityInput');
+  const baseText = textarea.value;
+  let interim = '';
+
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('voiceBtn').textContent = '⏹';
+    document.getElementById('voiceStatus').classList.add('show');
+  };
+
+  recognition.onresult = (e) => {
+    interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    textarea.value = baseText + (final || '') + interim;
+    updateCharCount();
+  };
+
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('voiceBtn').classList.remove('recording');
+    document.getElementById('voiceBtn').textContent = '🎙';
+    document.getElementById('voiceStatus').classList.remove('show');
+  };
+
+  recognition.onerror = (e) => {
+    showError('Voice error: ' + e.error);
+    isRecording = false;
+    document.getElementById('voiceBtn').classList.remove('recording');
+    document.getElementById('voiceBtn').textContent = '🎙';
+  };
+
+  recognition.start();
+}
+
+// Generate
+async function generate() {
+  const input = document.getElementById('activityInput').value.trim();
+  const dateVal = document.getElementById('dateInput').value;
+
+  hideError();
+
+  if (!apiKey) { openModal(); return; }
+  if (!input) { showError('Isi dulu cerita aktivitas lo ya!'); return; }
+  if (!dateVal) { showError('Pilih tanggalnya dulu.'); return; }
+
+  const dateObj = new Date(dateVal);
+  const dateFormatted = dateObj.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'2-digit' }).replace(/ /g, '-');
+
+  setLoading(true);
+
+  const prompt = `
+Kamu adalah sistem yang mengkonversi deskripsi aktivitas kerja harian menjadi format timesheet yang terstruktur.
+
+${PROJECT_CONTEXT}
+
+Format output yang dibutuhkan adalah JSON array, setiap elemen berisi:
+- start_hour: "HH:MM" (format 24 jam)
+- end_hour: "HH:MM"
+- total_minutes: number
+- activity_code: string (dari daftar di atas)
+- sub_activity: letter only (A/B/C/D/E/F/G/H/X)
+- description: string singkat dalam bahasa Indonesia (max 60 karakter)
+
+ATURAN PENTING:
+1. Total jam kerja dalam sehari maksimal 7 jam (420 menit), kecuali ada lembur yang eksplisit disebutkan
+2. Istirahat 12:00-13:00 tidak dihitung (skip)
+3. Kalau ada lembur (malam/sore melewati jam 17:00) tetap masukkan sebagai baris terpisah
+4. Jika waktu tidak disebutkan, estimasikan berdasarkan konteks dan isi sisa slot yang wajar
+5. Urutan berdasarkan waktu mulai
+6. Waktu mulai paling awal 09:00, paling akhir 17:00 (kecuali lembur)
+
+Tanggal hari ini: ${dateFormatted}
+
+Deskripsi aktivitas:
+"${input}"
+
+Kembalikan HANYA JSON array valid, tanpa markdown, tanpa penjelasan. Contoh format:
+[{"start_hour":"09:00","end_hour":"10:00","total_minutes":60,"activity_code":"PR250001","sub_activity":"D","description":"Weekly prepare - planning harian"}]
+`;
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 2000 }
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Clean up markdown
+    rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+    let entries;
+    try {
+      entries = JSON.parse(rawText);
+    } catch(e) {
+      throw new Error('Format response AI tidak valid. Coba lagi.');
+    }
+
+    // Save to history
+    saveHistory(dateVal, input, entries);
+
+    // Render
+    renderTable(entries, dateFormatted);
+    setLoading(false);
+    showToast('✅ Timesheet berhasil digenerate!');
+
+  } catch (err) {
+    setLoading(false);
+    showError('Error: ' + err.message);
+  }
+}
+
+function renderTable(entries, dateFormatted) {
+  const tbody = document.getElementById('resultBody');
+  tbody.innerHTML = '';
+
+  let totalMins = 0;
+
+  entries.forEach(entry => {
+    const sub = entry.sub_activity?.toUpperCase();
+    const subFull = SUB_MAP[sub] || sub || '';
+    const mins = entry.total_minutes || 0;
+    totalMins += mins;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${NAME}</td>
+      <td class="td-time">${dateFormatted}</td>
+      <td class="td-time">${entry.start_hour}</td>
+      <td class="td-time">${entry.end_hour}</td>
+      <td class="td-mins">${mins}</td>
+      <td class="td-code">${entry.activity_code}</td>
+      <td></td>
+      <td class="td-sub" title="${subFull}">${subFull}</td>
+      <td class="td-desc" title="${entry.description}">${entry.description}</td>
+      <td></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Total row
+  const totalTr = document.createElement('tr');
+  totalTr.className = 'total-row';
+  totalTr.innerHTML = `
+    <td colspan="4" style="text-align:right; font-family:'DM Mono',monospace; font-size:11px; color:var(--text3);">TOTAL</td>
+    <td class="td-mins">${totalMins}</td>
+    <td colspan="5"></td>
+  `;
+  tbody.appendChild(totalTr);
+
+  document.getElementById('entryCount').textContent = `${entries.length} entries · ${Math.floor(totalMins/60)}j ${totalMins%60}m`;
+  document.getElementById('resultSection').classList.add('show');
+
+  // Scroll to result
+  document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyTable() {
+  const tbody = document.getElementById('resultBody');
+  const rows = tbody.querySelectorAll('tr:not(.total-row)');
+
+  let tsv = '';
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    const vals = Array.from(cells).map(td => {
+      const full = td.getAttribute('title') || td.textContent.trim();
+      return full;
+    });
+    tsv += vals.join('\t') + '\n';
+  });
+
+  navigator.clipboard.writeText(tsv).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    showToast('📋 Data berhasil dicopy! Tinggal Ctrl+V di Excel.');
+    setTimeout(() => {
+      btn.innerHTML = '📋 Copy untuk Excel';
+      btn.classList.remove('copied');
+    }, 3000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = tsv;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('📋 Data berhasil dicopy!');
+  });
+}
+
+// History
+function saveHistory(dateVal, input, entries) {
+  const history = JSON.parse(localStorage.getItem('ts_history') || '[]');
+  history.unshift({ date: dateVal, input: input.substring(0, 100), entries, saved: Date.now() });
+  // Keep max 20
+  localStorage.setItem('ts_history', JSON.stringify(history.slice(0, 20)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('ts_history') || '[]');
+  if (!history.length) return;
+
+  const section = document.getElementById('historySection');
+  const list = document.getElementById('historyList');
+  section.classList.add('show');
+  list.innerHTML = '';
+
+  history.slice(0, 5).forEach((item, i) => {
+    const d = new Date(item.date);
+    const label = d.toLocaleDateString('id-ID', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <span class="history-date">${label}</span>
+      <span class="history-preview">${item.input}...</span>
+      <span class="history-count">${item.entries?.length || 0} entries</span>
+    `;
+    div.onclick = () => {
+      const d2 = new Date(item.date);
+      document.getElementById('dateInput').value = item.date;
+      document.getElementById('activityInput').value = item.input;
+      const dateFormatted = d2.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'2-digit' }).replace(/ /g, '-');
+      renderTable(item.entries, dateFormatted);
+    };
+    list.appendChild(div);
+  });
+}
+
+// Utils
+function setLoading(on) {
+  document.getElementById('generateBtn').disabled = on;
+  document.getElementById('loadingDots').classList.toggle('show', on);
+  document.getElementById('generateBtn').style.display = on ? 'none' : 'flex';
+  if (!on) document.getElementById('generateBtn').style.display = 'flex';
+}
+
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  box.textContent = '⚠️ ' + msg;
+  box.classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('errorBox').classList.remove('show');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+renderHistory();
+</script>
+</body>
+</html>
