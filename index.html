@@ -715,6 +715,21 @@
       <button class="add-link" onclick="toggleAddForm('scheduleAddForm')">+ Tambah jadwal rutin</button>
     </div>
 
+    <!-- Section: Model -->
+    <div class="settings-section">
+      <div class="settings-title">Gemini Model</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="modelSelect" style="padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;flex:1;min-width:200px">
+          <option value="gemini-2.0-flash">gemini-2.0-flash (default)</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash (lebih stabil)</option>
+          <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b (paling ringan)</option>
+          <option value="gemini-2.5-flash-preview-04-17">gemini-2.5-flash-preview (terbaru)</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="saveModel()">💾 Simpan</button>
+      </div>
+      <p class="settings-note" style="margin-top:8px">Kalau sering 429, coba ganti ke gemini-1.5-flash yang punya limit lebih longgar di free tier.</p>
+    </div>
+
     <!-- Section: Gaya Penulisan -->
     <div class="settings-section">
       <div class="settings-title">Gaya Penulisan Description</div>
@@ -1071,7 +1086,8 @@ Kembalikan HANYA JSON array valid, tanpa markdown, tanpa penjelasan. Contoh form
 `;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const model = localStorage.getItem('ts_model') || 'gemini-2.0-flash';
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1082,7 +1098,13 @@ Kembalikan HANYA JSON array valid, tanpa markdown, tanpa penjelasan. Contoh form
 
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
+      const status = res.status;
+      if (status === 429) {
+        setLoading(false);
+        startRateLimitCountdown();
+        return;
+      }
+      throw new Error(err.error?.message || `HTTP ${status}`);
     }
 
     const data    = await res.json();
@@ -1102,6 +1124,32 @@ Kembalikan HANYA JSON array valid, tanpa markdown, tanpa penjelasan. Contoh form
     setLoading(false);
     showError('Error: ' + err.message);
   }
+}
+
+let rateLimitTimer = null;
+function startRateLimitCountdown() {
+  let secs = 60;
+  const btn = document.getElementById('generateBtn');
+  const dots = document.getElementById('loadingDots');
+  dots.classList.remove('show');
+  btn.style.display = 'flex';
+  btn.disabled = true;
+
+  function tick() {
+    btn.textContent = `⏳ Rate limit — tunggu ${secs}s`;
+    if (secs <= 0) {
+      btn.textContent = '✨ Generate Timesheet';
+      btn.disabled = false;
+      rateLimitTimer = null;
+      showToast('✅ Siap! Coba generate lagi.');
+      return;
+    }
+    secs--;
+    rateLimitTimer = setTimeout(tick, 1000);
+  }
+
+  showError('Rate limit Gemini (429). Kemungkinan: terlalu banyak request dalam 1 menit, atau daily quota habis. Cek usage di aistudio.google.com');
+  tick();
 }
 
 // ── RENDER TABLE + VALIDASI ──────────────────────────────────────────────────
@@ -1275,6 +1323,8 @@ function openSettings() {
   renderProjectList();
   renderScheduleList();
   document.getElementById('writingStyleInput').value = getWritingStyle();
+  const savedModel = localStorage.getItem('ts_model') || 'gemini-2.0-flash';
+  document.getElementById('modelSelect').value = savedModel;
   document.getElementById('settingsModal').classList.add('show');
 }
 function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
@@ -1385,6 +1435,14 @@ function addSchedule() {
   toggleAddForm('scheduleAddForm');
   renderScheduleList();
   showToast(`✅ Jadwal ${day} ${time} ditambahkan.`);
+}
+
+// Model
+
+function saveModel() {
+  const val = document.getElementById('modelSelect').value;
+  localStorage.setItem('ts_model', val);
+  showToast(`✅ Model diganti ke ${val}`);
 }
 
 // Writing style
